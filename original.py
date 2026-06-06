@@ -1,0 +1,90 @@
+import requests
+import time
+
+TARGET_DATE = 20260225
+
+INPUT_FILE = "symbols.txt"
+OUTPUT_FILE = "output.txt"
+
+
+def get_today_price(ins_code):
+    url = f"https://cdn.tsetmc.com/api/ClosingPrice/GetClosingPriceInfo/{ins_code}"
+
+    data = requests.get(url, timeout=20).json()
+
+    return data["closingPriceInfo"]["pDrCotVal"]
+
+
+def get_old_price(ins_code):
+    url = (
+        f"https://cdn.tsetmc.com/api/ClosingPrice/"
+        f"GetClosingPriceDailyList/{ins_code}/0"
+    )
+
+    data = requests.get(url, timeout=20).json()
+
+    rows = []
+
+    if isinstance(data, list):
+        rows = data
+
+    elif isinstance(data, dict):
+        rows = data.get("closingPriceDaily", [])
+
+    for row in rows:
+
+        if int(row.get("dEven", 0)) == TARGET_DATE:
+
+            return (
+                row.get("pDrCotVal")
+                or row.get("pClosing")
+                or row.get("priceYesterday")
+            )
+
+    return None
+
+
+with open(INPUT_FILE, "r", encoding="utf-8") as f:
+    symbols = [line.strip() for line in f if line.strip()]
+
+results = []
+
+for ins_code in symbols:
+
+    try:
+        today_price = get_today_price(ins_code)
+        old_price = get_old_price(ins_code)
+
+        if old_price is None:
+            results.append(
+                f"{ins_code} => DATE_NOT_FOUND"
+            )
+            continue
+
+        percent_change = (
+            (today_price - old_price)
+            / old_price
+        ) * 100
+
+        results.append(
+            f"{ins_code} => {percent_change:.2f}%"
+        )
+
+        print(
+            f"{ins_code} => {percent_change:.2f}%"
+        )
+
+        time.sleep(0.3)
+
+    except Exception as e:
+
+        results.append(
+            f"{ins_code} => ERROR: {e}"
+        )
+
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+
+    for row in results:
+        f.write(row + "\n")
+
+print(f"Saved to {OUTPUT_FILE}")
