@@ -29,8 +29,58 @@ def get_symbol_name(ins_code):
     return symbol_name
 
 
-print("Enter id stock: ")
-ins_code =  input()
-name_stock = get_symbol_name(ins_code=ins_code)
+#print("Enter id stock: ")
+#ins_code =  input()
+#name_stock = get_symbol_name(ins_code=ins_code)
+#print(name_stock)
 
-print(name_stock)
+
+print("Enter persian name: ")
+name = input()
+
+def reverse_name(name):
+    stringlength=len(name) 
+    slicedString=name[stringlength::-1]  
+    print(slicedString)
+
+    
+reverse_name(name)
+
+
+
+#s="yhor" # initial string
+#stringlength=len(s) # calculate length of the list
+#slicedString=s[stringlength::-1] # slicing 
+#print (slicedString) # print the reversed string
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

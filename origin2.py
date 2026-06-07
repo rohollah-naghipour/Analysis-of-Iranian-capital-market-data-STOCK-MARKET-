@@ -49,6 +49,14 @@ def get_symbol_name(ins_code):
     return symbol_name
 
 
+def reverse_name(symbol_name):
+    string_length=len(symbol_name) 
+    slicedString=symbol_name[string_length::-1]  
+    
+    return slicedString
+
+
+
 with open(INPUT_FILE, "r", encoding="utf-8") as f:
     symbols = [line.strip() for line in f if line.strip()]
 
@@ -64,31 +72,27 @@ for ins_code in symbols:
         old_price = get_old_price(ins_code)
 
         if old_price is None:
-            results.append(f"{symbol_name} ({ins_code}) => DATE_NOT_FOUND")
+            results.append(f"{reverse_name(symbol_name)} ({ins_code}) => DATE_NOT_FOUND")
             continue
 
         percent_change = ((today_price - old_price) / old_price) * 100
 
-        # استفاده از کد به جای نام فارسی
-        x.append(symbol_name)  # تغییر: به جای نام فارسی، کد سهم
+        x.append(reverse_name(symbol_name))  
         y.append(percent_change)
 
-        results.append(f"{symbol_name} | {ins_code} | {percent_change:.2f}%")
-        print(f"{symbol_name} ({ins_code}) => {percent_change:.2f}%")
+        results.append(f"{reverse_name(symbol_name)} | {ins_code} | {percent_change:.2f}%")
+        print(f"{reverse_name(symbol_name)} ({ins_code}) => {percent_change:.2f}%")
 
         time.sleep(0.3)
 
     except Exception as e:
         results.append(f"{ins_code} => ERROR: {e}")
 
-# رسم نمودار با سایز مناسب
 if x and y:
-    plt.figure(figsize=(10, 6))  # سایز کوچکتر
+    plt.figure(figsize=(10, 6)) 
     
-    # تنظیم عرض میله‌ها
-    bars = plt.bar(x, y, width=0.6)  # width=0.6 باعث می‌شود میله‌ها باریک‌تر شوند
+    bars = plt.bar(x, y, width=0.6)  
     
-    # رنگ‌بندی بر اساس مثبت یا منفی بودن
     for i, bar in enumerate(bars):
         if y[i] >= 0:
             bar.set_color('green')
@@ -99,14 +103,11 @@ if x and y:
     plt.xlabel('Symbol Code', fontsize=10)
     plt.ylabel('Change (%)', fontsize=10)
     
-    # چرخاندن برچسب‌ها و تنظیم فاصله
     plt.xticks(rotation=45, ha='right', fontsize=8)
     plt.yticks(fontsize=8)
     
-    # اضافه کردن خط صفر
     plt.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
     
-    # اضافه کردن مقدار روی میله‌ها (اختیاری)
     for i, (code, value) in enumerate(zip(x, y)):
         plt.text(i, value + (0.5 if value >= 0 else -2), 
                 f'{value:.1f}%', 
@@ -119,7 +120,6 @@ if x and y:
 else:
     print("No data to plot.")
 
-# ذخیره نتایج در فایل
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     for row in results:
         f.write(row + "\n")
