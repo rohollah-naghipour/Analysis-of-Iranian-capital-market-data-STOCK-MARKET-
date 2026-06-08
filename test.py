@@ -185,7 +185,7 @@ except FileNotFoundError:
 except Exception as e:
     print(f"❌ خطا: {e}")
 
-
+    
 
 
 
